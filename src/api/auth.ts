@@ -43,4 +43,8 @@ export const authApi = {
 
   /** GET /auth/me */
   me: () => apiClient.get<User>('/auth/me').then((r) => r.data),
+
+  /** POST /auth/tenant — create tenant during onboarding, returns new tokens */
+  createTenant: (name: string) =>
+    apiClient.post<Tokens>('/auth/tenant', { name }).then((r) => r.data),
 };
