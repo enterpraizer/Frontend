@@ -15,6 +15,7 @@ import { getErrorMessage } from '@/lib/utils';
 export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+  const setTokens = useAuthStore((s) => s.setTokens);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const {
@@ -27,6 +28,8 @@ export default function LoginPage() {
     setApiError(null);
     try {
       const tokens = await authApi.login(data);
+      // Store tokens first so the request interceptor can attach Authorization header
+      setTokens(tokens);
       const user = await authApi.me();
       login(tokens, user);
       navigate('/dashboard', { replace: true });
