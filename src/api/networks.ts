@@ -9,7 +9,7 @@ export interface NetworkCreate {
 
 export const networksApi = {
   /** GET /networks */
-  list: (params?: { skip?: number; limit?: number }) =>
+  list: (params?: { offset?: number; limit?: number }) =>
     apiClient.get<Paginated<Network>>('/networks', { params }).then((r) => r.data),
 
   /** GET /networks/:id */
@@ -24,11 +24,11 @@ export const networksApi = {
   delete: (id: string) =>
     apiClient.delete<void>(`/networks/${id}`).then((r) => r.data),
 
-  /** POST /networks/:id/attach — attach a VM to this network */
+  /** POST /networks/:id/attach-vm — attach a VM to this network */
   attachVM: (networkId: string, vmId: string) =>
-    apiClient.post<void>(`/networks/${networkId}/attach`, { vm_id: vmId }).then((r) => r.data),
+    apiClient.post<void>(`/networks/${networkId}/attach-vm`, { vm_id: vmId }).then((r) => r.data),
 
-  /** POST /networks/:id/detach — detach a VM from this network */
+  /** POST /networks/:id/detach-vm — detach a VM from this network */
   detachVM: (networkId: string, vmId: string) =>
-    apiClient.post<void>(`/networks/${networkId}/detach`, { vm_id: vmId }).then((r) => r.data),
+    apiClient.post<void>(`/networks/${networkId}/detach-vm`, { vm_id: vmId }).then((r) => r.data),
 };

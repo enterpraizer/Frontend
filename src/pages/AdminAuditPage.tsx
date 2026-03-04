@@ -64,7 +64,7 @@ function exportCSV(entries: ActivityEntry[]) {
     e.tenant_id ?? '',
     e.user_email ?? e.user_id,
     e.action,
-    e.resource,
+    e.resource_type,
     e.resource_id,
   ]);
   const csv = [header, ...rows]
@@ -115,7 +115,7 @@ const AdminAuditPage = () => {
   const [nameSearch, setSearch]   = useState('');
 
   const { data, isLoading } = useAdminActivity({
-    skip: page * PAGE_SIZE,
+    offset: page * PAGE_SIZE,
     limit: PAGE_SIZE,
     tenant_id: tenantFilter === 'all' ? undefined : tenantFilter,
     action: actionFilter === 'all' ? undefined : actionFilter,
@@ -138,7 +138,7 @@ const AdminAuditPage = () => {
     return data.items.filter(
       (e) =>
         e.action.toLowerCase().includes(q) ||
-        e.resource.toLowerCase().includes(q) ||
+        e.resource_type.toLowerCase().includes(q) ||
         (e.user_email ?? '').toLowerCase().includes(q)
     );
   }, [data, nameSearch]);
@@ -277,7 +277,7 @@ const AdminAuditPage = () => {
                           {entry.action}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs font-medium">{entry.resource}</TableCell>
+                      <TableCell className="text-xs font-medium">{entry.resource_type}</TableCell>
                       <TableCell>
                         <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
                           {entry.resource_id.slice(0, 12)}…

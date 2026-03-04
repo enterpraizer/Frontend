@@ -278,7 +278,7 @@ const DashboardPage = () => {
                         {formatTime(entry.created_at)}
                       </span>
                       <span className="font-medium">{entry.action}</span>
-                      <span className="text-muted-foreground">{entry.resource}</span>
+                      <span className="text-muted-foreground">{entry.resource_type}</span>
                       <span className="text-xs text-muted-foreground truncate">
                         {entry.resource_id}
                       </span>

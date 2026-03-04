@@ -11,7 +11,7 @@ export const adminApi = {
   // ── Tenants ───────────────────────────────────────────────────────────────
 
   /** GET /admin/tenants */
-  listTenants: (params?: { skip?: number; limit?: number }) =>
+  listTenants: (params?: { offset?: number; limit?: number }) =>
     apiClient.get<Paginated<Tenant>>('/admin/tenants', { params }).then((r) => r.data),
 
   /** GET /admin/tenants/:id */
@@ -22,37 +22,37 @@ export const adminApi = {
   getTenantQuota: (id: string) =>
     apiClient.get<Quota>(`/admin/tenants/${id}/quota`).then((r) => r.data),
 
-  /** PUT /admin/tenants/:id/quota */
+  /** PATCH /admin/tenants/:id/quota */
   updateTenantQuota: (id: string, quota: Partial<Quota>) =>
-    apiClient.put<Quota>(`/admin/tenants/${id}/quota`, quota).then((r) => r.data),
+    apiClient.patch<Quota>(`/admin/tenants/${id}/quota`, quota).then((r) => r.data),
 
-  /** PATCH /admin/tenants/:id/activate */
+  /** PATCH /admin/tenants/:id?is_active=true */
   activateTenant: (id: string) =>
-    apiClient.patch<Tenant>(`/admin/tenants/${id}/activate`).then((r) => r.data),
+    apiClient.patch<Tenant>(`/admin/tenants/${id}`, null, { params: { is_active: true } }).then((r) => r.data),
 
-  /** PATCH /admin/tenants/:id/deactivate */
+  /** PATCH /admin/tenants/:id?is_active=false */
   deactivateTenant: (id: string) =>
-    apiClient.patch<Tenant>(`/admin/tenants/${id}/deactivate`).then((r) => r.data),
+    apiClient.patch<Tenant>(`/admin/tenants/${id}`, null, { params: { is_active: false } }).then((r) => r.data),
 
-  /** GET /admin/tenants/:id/usage */
+  /** GET /admin/tenants/:id/quota — returns quota + usage */
   getTenantUsage: (id: string) =>
-    apiClient.get<ResourceUsage>(`/admin/tenants/${id}/usage`).then((r) => r.data),
+    apiClient.get<ResourceUsage>(`/admin/tenants/${id}/quota`).then((r) => r.data),
 
   // ── VMs ───────────────────────────────────────────────────────────────────
 
   /** GET /admin/vms */
-  listVMs: (params?: { skip?: number; limit?: number; tenant_id?: string; status?: string }) =>
+  listVMs: (params?: { offset?: number; limit?: number; tenant_id?: string; status?: string }) =>
     apiClient.get<Paginated<VM>>('/admin/vms', { params }).then((r) => r.data),
 
   // ── Users ─────────────────────────────────────────────────────────────────
 
-  /** GET /admin/users */
-  listUsers: (params?: { skip?: number; limit?: number }) =>
-    apiClient.get<Paginated<User>>('/admin/users', { params }).then((r) => r.data),
+  /** GET /users */
+  listUsers: (params?: { offset?: number; limit?: number }) =>
+    apiClient.get<Paginated<User>>('/users', { params }).then((r) => r.data),
 
   /** GET /admin/activity */
   listActivity: (params?: {
-    skip?: number;
+    offset?: number;
     limit?: number;
     tenant_id?: string;
     action?: string;

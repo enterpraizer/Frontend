@@ -159,7 +159,7 @@ const AdminTenantsPage = () => {
   const [editTenant, setEditTenant] = useState<Tenant | null>(null);
   const [toggleTarget, setToggleTarget] = useState<Tenant | null>(null);
 
-  const { data, isLoading } = useTenantList({ limit: PAGE_SIZE, skip: page * PAGE_SIZE });
+  const { data, isLoading } = useTenantList({ limit: PAGE_SIZE, offset: page * PAGE_SIZE });
   const toggleActive = useToggleTenantActive();
 
   // Fetch quota+usage for the selected tenant (for QuotaEditorModal)

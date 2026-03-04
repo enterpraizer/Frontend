@@ -12,7 +12,7 @@ export interface VMSummary {
 export interface ActivityEntry {
   id: string;
   action: string;
-  resource: string;
+  resource_type: string;
   resource_id: string;
   user_id: string;
   tenant_id?: string;
@@ -26,9 +26,9 @@ export const dashboardApi = {
   usage: () =>
     apiClient.get<ResourceUsage>('/dashboard/usage').then((r) => r.data),
 
-  /** GET /dashboard/vms-summary */
+  /** GET /dashboard/vms/summary */
   vmSummary: () =>
-    apiClient.get<VMSummary>('/dashboard/vms-summary').then((r) => r.data),
+    apiClient.get<VMSummary>('/dashboard/vms/summary').then((r) => r.data),
 
   /** GET /dashboard/activity */
   activity: () =>

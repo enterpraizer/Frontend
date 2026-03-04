@@ -5,7 +5,7 @@ import { queryKeys } from '@/api/queryKeys';
 import type { Quota } from '@/types';
 
 interface AdminListParams {
-  skip?: number;
+  offset?: number;
   limit?: number;
 }
 
@@ -100,7 +100,7 @@ export const useTenantVMs = (tenantId: string, params?: AdminListParams) =>
   });
 
 export const useAdminActivity = (params?: {
-  skip?: number;
+  offset?: number;
   limit?: number;
   tenant_id?: string;
   action?: string;

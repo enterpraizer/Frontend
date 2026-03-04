@@ -77,7 +77,7 @@ const AdminVMsPage = () => {
 
   const { data, isLoading } = useAdminVMs({
     limit: PAGE_SIZE,
-    skip: page * PAGE_SIZE,
+    offset: page * PAGE_SIZE,
     tenant_id: tenantFilter === 'all' ? undefined : tenantFilter,
     status: statusFilter === 'all' ? undefined : statusFilter,
   });

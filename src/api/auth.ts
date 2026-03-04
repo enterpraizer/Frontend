@@ -31,9 +31,9 @@ export const authApi = {
   register: (payload: RegisterPayload) =>
     apiClient.post<User>('/auth/register', payload).then((r) => r.data),
 
-  /** POST /auth/register/confirm?token=... */
+  /** GET /auth/register_confirm?token=... */
   confirmEmail: (token: string) =>
-    apiClient.post<void>('/auth/register/confirm', null, { params: { token } }).then((r) => r.data),
+    apiClient.get<void>('/auth/register_confirm', { params: { token } }).then((r) => r.data),
 
   /** POST /auth/refresh */
   refresh: (refreshToken: string) =>

@@ -18,7 +18,7 @@ function errDetail(err: unknown): string {
 export const useNetworkList = (params?: NetworkListParams) =>
   useQuery({
     queryKey: queryKeys.networks.list(params),
-    queryFn: () => networksApi.list({ skip: params?.offset, limit: params?.limit }),
+    queryFn: () => networksApi.list({ offset: params?.offset, limit: params?.limit }),
     staleTime: 30_000,
   });
 

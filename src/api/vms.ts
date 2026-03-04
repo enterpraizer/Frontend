@@ -3,7 +3,7 @@ import type { VM, VMCreate, Paginated } from '../types';
 
 export const vmsApi = {
   /** GET /vms */
-  list: (params?: { skip?: number; limit?: number }) =>
+  list: (params?: { offset?: number; limit?: number }) =>
     apiClient.get<Paginated<VM>>('/vms', { params }).then((r) => r.data),
 
   /** GET /vms/:id */
@@ -22,11 +22,7 @@ export const vmsApi = {
   stop: (id: string) =>
     apiClient.post<VM>(`/vms/${id}/stop`).then((r) => r.data),
 
-  /** POST /vms/:id/terminate */
+  /** DELETE /vms/:id — terminate (stop + remove) the VM */
   terminate: (id: string) =>
-    apiClient.post<VM>(`/vms/${id}/terminate`).then((r) => r.data),
-
-  /** DELETE /vms/:id */
-  delete: (id: string) =>
     apiClient.delete<void>(`/vms/${id}`).then((r) => r.data),
 };

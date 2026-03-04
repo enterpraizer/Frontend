@@ -25,7 +25,7 @@ function toApiError(err: unknown): ApiError {
 export const useVMList = (params?: VMListParams) =>
   useQuery({
     queryKey: queryKeys.vms.list(params),
-    queryFn: () => vmsApi.list({ skip: params?.offset, limit: params?.limit }),
+    queryFn: () => vmsApi.list({ offset: params?.offset, limit: params?.limit }),
     staleTime: 30_000,
   });
 
