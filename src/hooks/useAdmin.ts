@@ -83,6 +83,22 @@ export const useAdminVMs = (params?: AdminListParams) =>
     staleTime: 30_000,
   });
 
+export const useTenantUsage = (id: string) =>
+  useQuery({
+    queryKey: ['admin', 'tenants', id, 'usage'] as const,
+    queryFn: () => adminApi.getTenantUsage(id),
+    enabled: !!id,
+    staleTime: 30_000,
+  });
+
+export const useTenantVMs = (tenantId: string, params?: AdminListParams) =>
+  useQuery({
+    queryKey: ['admin', 'tenants', tenantId, 'vms', params] as const,
+    queryFn: () => adminApi.listVMs({ ...params, tenant_id: tenantId } as Parameters<typeof adminApi.listVMs>[0]),
+    enabled: !!tenantId,
+    staleTime: 30_000,
+  });
+
 // ─── Admin Users ─────────────────────────────────────────────────────────────
 
 export const useAdminUsers = (params?: AdminListParams) =>

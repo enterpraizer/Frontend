@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Tenant, VM, User, AdminStats, Quota, Paginated } from '../types';
+import type { Tenant, VM, User, AdminStats, Quota, Paginated, ResourceUsage } from '../types';
 
 export const adminApi = {
   // ── Stats ─────────────────────────────────────────────────────────────────
@@ -33,6 +33,10 @@ export const adminApi = {
   /** PATCH /admin/tenants/:id/deactivate */
   deactivateTenant: (id: string) =>
     apiClient.patch<Tenant>(`/admin/tenants/${id}/deactivate`).then((r) => r.data),
+
+  /** GET /admin/tenants/:id/usage */
+  getTenantUsage: (id: string) =>
+    apiClient.get<ResourceUsage>(`/admin/tenants/${id}/usage`).then((r) => r.data),
 
   // ── VMs ───────────────────────────────────────────────────────────────────
 
