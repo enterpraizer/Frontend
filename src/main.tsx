@@ -5,7 +5,14 @@ import { RouterProvider } from 'react-router-dom';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 import { Toaster } from 'sonner';
 import router from './router/index.tsx';
+import { useThemeStore } from './store/themeStore.ts';
 import './index.css';
+
+// Apply persisted theme before first render (prevents flash)
+const persistedTheme = useThemeStore.getState().theme;
+if (persistedTheme === 'dark') {
+  document.documentElement.classList.add('dark');
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
