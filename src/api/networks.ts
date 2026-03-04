@@ -4,6 +4,7 @@ import type { Network, Paginated } from '../types';
 export interface NetworkCreate {
   name: string;
   cidr: string;
+  is_public?: boolean;
 }
 
 export const networksApi = {
