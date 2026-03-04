@@ -76,7 +76,7 @@ export const useToggleTenantActive = () => {
 
 // ─── Admin VMs ───────────────────────────────────────────────────────────────
 
-export const useAdminVMs = (params?: AdminListParams) =>
+export const useAdminVMs = (params?: AdminListParams & { tenant_id?: string; status?: string }) =>
   useQuery({
     queryKey: queryKeys.admin.allVMs(params),
     queryFn: () => adminApi.listVMs(params),
@@ -96,6 +96,20 @@ export const useTenantVMs = (tenantId: string, params?: AdminListParams) =>
     queryKey: ['admin', 'tenants', tenantId, 'vms', params] as const,
     queryFn: () => adminApi.listVMs({ ...params, tenant_id: tenantId } as Parameters<typeof adminApi.listVMs>[0]),
     enabled: !!tenantId,
+    staleTime: 30_000,
+  });
+
+export const useAdminActivity = (params?: {
+  skip?: number;
+  limit?: number;
+  tenant_id?: string;
+  action?: string;
+  from?: string;
+  to?: string;
+}) =>
+  useQuery({
+    queryKey: ['admin', 'activity', params] as const,
+    queryFn: () => adminApi.listActivity(params),
     staleTime: 30_000,
   });
 

@@ -41,7 +41,7 @@ export const adminApi = {
   // ── VMs ───────────────────────────────────────────────────────────────────
 
   /** GET /admin/vms */
-  listVMs: (params?: { skip?: number; limit?: number }) =>
+  listVMs: (params?: { skip?: number; limit?: number; tenant_id?: string; status?: string }) =>
     apiClient.get<Paginated<VM>>('/admin/vms', { params }).then((r) => r.data),
 
   // ── Users ─────────────────────────────────────────────────────────────────
@@ -49,4 +49,20 @@ export const adminApi = {
   /** GET /admin/users */
   listUsers: (params?: { skip?: number; limit?: number }) =>
     apiClient.get<Paginated<User>>('/admin/users', { params }).then((r) => r.data),
+
+  /** GET /admin/activity */
+  listActivity: (params?: {
+    skip?: number;
+    limit?: number;
+    tenant_id?: string;
+    action?: string;
+    from?: string;
+    to?: string;
+  }) =>
+    apiClient
+      .get<{ items: import('./dashboard').ActivityEntry[]; total: number }>(
+        '/admin/activity',
+        { params }
+      )
+      .then((r) => r.data),
 };

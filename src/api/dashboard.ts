@@ -15,6 +15,9 @@ export interface ActivityEntry {
   resource: string;
   resource_id: string;
   user_id: string;
+  tenant_id?: string;
+  user_email?: string;
+  details?: Record<string, unknown>;
   created_at: string;
 }
 
