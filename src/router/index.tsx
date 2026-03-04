@@ -44,7 +44,7 @@ const router = createBrowserRouter([
 
   // Onboarding (auth required, but no tenant yet)
   {
-    element: <ProtectedRoute />,
+    element: <ProtectedRoute requireTenant={false} />,
     children: [{ path: '/onboarding', element: <OnboardingPage /> }],
   },
 
