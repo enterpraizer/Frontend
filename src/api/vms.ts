@@ -22,6 +22,10 @@ export const vmsApi = {
   stop: (id: string) =>
     apiClient.post<VM>(`/vms/${id}/stop`).then((r) => r.data),
 
+  /** POST /vms/:id/terminate */
+  terminate: (id: string) =>
+    apiClient.post<VM>(`/vms/${id}/terminate`).then((r) => r.data),
+
   /** DELETE /vms/:id */
   delete: (id: string) =>
     apiClient.delete<void>(`/vms/${id}`).then((r) => r.data),

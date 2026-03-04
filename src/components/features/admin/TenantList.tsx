@@ -1,7 +1,7 @@
-import { useAdminTenants } from '../../../hooks/useAdmin';
+import { useTenantList } from '../../../hooks/useAdmin';
 
 const TenantList = () => {
-  const { data, isLoading, isError } = useAdminTenants();
+  const { data, isLoading, isError } = useTenantList();
   const tenants = data?.items;
 
   if (isLoading) return <p>Loading tenants…</p>;

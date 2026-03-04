@@ -22,4 +22,12 @@ export const networksApi = {
   /** DELETE /networks/:id */
   delete: (id: string) =>
     apiClient.delete<void>(`/networks/${id}`).then((r) => r.data),
+
+  /** POST /networks/:id/attach — attach a VM to this network */
+  attachVM: (networkId: string, vmId: string) =>
+    apiClient.post<void>(`/networks/${networkId}/attach`, { vm_id: vmId }).then((r) => r.data),
+
+  /** POST /networks/:id/detach — detach a VM from this network */
+  detachVM: (networkId: string, vmId: string) =>
+    apiClient.post<void>(`/networks/${networkId}/detach`, { vm_id: vmId }).then((r) => r.data),
 };

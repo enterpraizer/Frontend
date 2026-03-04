@@ -1,7 +1,7 @@
-import { useVMs } from '../../../hooks/useVMs';
+import { useVMList } from '../../../hooks/useVMs';
 
 const VMList = () => {
-  const { data, isLoading, isError } = useVMs();
+  const { data, isLoading, isError } = useVMList();
   const vms = data?.items;
 
   if (isLoading) return <p>Loading VMs…</p>;

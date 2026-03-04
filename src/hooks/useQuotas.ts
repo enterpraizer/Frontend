@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { quotasApi } from '../api/quotas';
-import { QUERY_KEYS } from '../lib/constants';
+import { quotasApi } from '@/api/quotas';
 
 export const useQuota = () =>
-  useQuery({ queryKey: QUERY_KEYS.quotas, queryFn: quotasApi.get });
+  useQuery({
+    queryKey: ['quotas', 'me'],
+    queryFn: quotasApi.get,
+    staleTime: 60_000,
+  });
