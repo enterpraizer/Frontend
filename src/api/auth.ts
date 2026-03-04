@@ -47,4 +47,8 @@ export const authApi = {
   /** POST /auth/tenant — create tenant during onboarding, returns new tokens */
   createTenant: (name: string) =>
     apiClient.post<Tokens>('/auth/tenant', { name }).then((r) => r.data),
+
+  /** PATCH /auth/change_password */
+  changePassword: (payload: { old_password: string; new_password: string }) =>
+    apiClient.patch<void>('/auth/change_password', payload).then((r) => r.data),
 };
