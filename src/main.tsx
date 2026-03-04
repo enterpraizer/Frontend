@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
+import { Toaster } from 'sonner';
 import router from './router/index.tsx';
 import './index.css';
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
+        <Toaster richColors position="top-right" />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </ErrorBoundary>
