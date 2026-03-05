@@ -80,17 +80,15 @@ function SidebarLink({
           onClick={onClick}
           className={({ isActive }) =>
             cn(
-              'flex items-center rounded-md text-sm font-medium transition-all duration-150 cursor-pointer',
-              // layout — same as original
+              'flex items-center rounded-md text-sm font-medium transition-colors duration-150 cursor-pointer',
               'gap-3 px-3 py-2',
               'md:justify-center md:px-2',
               isCollapsed
                 ? 'xl:justify-center xl:px-2'
                 : 'xl:justify-start xl:gap-3 xl:px-3',
-              // inactive: subtle hover — slate-700 bg + white text
-              !isActive && 'text-slate-400 hover:text-white hover:bg-slate-700/60',
-              // active: white text + bright left accent bar
-              isActive && 'bg-slate-700 text-white border-l-2 border-blue-400',
+              isActive
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-400 hover:bg-slate-700 hover:text-white',
             )
           }
         >
