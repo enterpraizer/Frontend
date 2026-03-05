@@ -80,7 +80,8 @@ function SidebarLink({
           onClick={onClick}
           className={({ isActive }) =>
             cn(
-              'flex items-center rounded-md text-sm transition-colors text-slate-300 hover:bg-slate-800 hover:text-white',
+              'flex items-center rounded-md text-sm font-medium transition-all duration-150 cursor-pointer',
+              'text-slate-400 hover:bg-slate-700 hover:text-white',
               // Mobile: full row
               'gap-3 px-3 py-2',
               // Tablet (md–xl): icon-only centered
@@ -89,8 +90,10 @@ function SidebarLink({
               isCollapsed
                 ? 'xl:justify-center xl:px-2'
                 : 'xl:justify-start xl:gap-3 xl:px-3',
-              // Active state
-              isActive && 'bg-slate-800 text-white',
+              // Active state — blue accent
+              isActive
+                ? 'bg-blue-600/20 text-blue-400 border-l-2 border-blue-400 pl-[10px]'
+                : 'border-l-2 border-transparent',
             )
           }
         >
