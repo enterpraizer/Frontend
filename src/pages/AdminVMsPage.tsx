@@ -1,6 +1,6 @@
+import { formatRelativeMsk } from '@/lib/utils';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDistanceToNow } from 'date-fns';
 import { Search, Pause, Trash2, Server } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -112,12 +112,12 @@ const AdminVMsPage = () => {
       <div className="space-y-5">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">All Virtual Machines</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Все виртуальные машины</h1>
           {!isLoading && (
             <p className="text-sm text-muted-foreground mt-1">
-              Showing <strong>{total}</strong> VMs across{' '}
+              Показано <strong>{total}</strong> VM по{' '}
               <strong>{tenantCount}</strong> tenants —{' '}
-              <span className="text-green-600 font-medium">{runningCount} running</span>
+              <span className="text-green-600 font-medium">{runningCount} запущено</span>
             </p>
           )}
         </div>
@@ -128,17 +128,17 @@ const AdminVMsPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Search by VM name…"
+              placeholder="Поиск по имени VM…"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             />
           </div>
           <Select value={tenantFilter} onValueChange={(v) => { setTenantFilter(v); setPage(0); }}>
             <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All Tenants" />
+              <SelectValue placeholder="Все арендаторы" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Tenants</SelectItem>
+              <SelectItem value="all">Все арендаторы</SelectItem>
               {tenantsData?.items?.map((t) => (
                 <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
               ))}
@@ -146,11 +146,11 @@ const AdminVMsPage = () => {
           </Select>
           <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(0); }}>
             <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="All Statuses" />
+              <SelectValue placeholder="Все статусы" />
             </SelectTrigger>
             <SelectContent>
               {STATUS_OPTIONS.map((s) => (
-                <SelectItem key={s} value={s}>{s === 'all' ? 'All Statuses' : s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+                <SelectItem key={s} value={s}>{s === 'all' ? 'Все статусы' : s === 'running' ? 'Запущена' : s === 'stopped' ? 'Остановлена' : s === 'pending' ? 'Ожидание' : s === 'terminated' ? 'Удалена' : s}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -160,24 +160,24 @@ const AdminVMsPage = () => {
         {!isLoading && vms.length === 0 ? (
           <EmptyState
             icon={<Server className="h-12 w-12" />}
-            title="No VMs found"
-            description="Try adjusting your filters."
+            title="VM не найдены"
+            description="Попробуйте изменить фильтры."
           />
         ) : (
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>VM Name</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Арендатор</TableHead>
+                  <TableHead>Название VM</TableHead>
+                  <TableHead>Статус</TableHead>
                   <TableHead>vCPU</TableHead>
                   <TableHead>RAM</TableHead>
-                  <TableHead>Disk</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead>Container ID</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Диск</TableHead>
+                  <TableHead>IP-адрес</TableHead>
+                  <TableHead>ID контейнера</TableHead>
+                  <TableHead>Создана</TableHead>
+                  <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -224,7 +224,7 @@ const AdminVMsPage = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs">
-                        {formatDistanceToNow(new Date(vm.created_at), { addSuffix: true })}
+                        {formatRelativeMsk(vm.created_at)}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-1">
@@ -240,7 +240,7 @@ const AdminVMsPage = () => {
                                 </Button>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>Force Stop</TooltipContent>
+                            <TooltipContent>Принудительная остановка</TooltipContent>
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -255,7 +255,7 @@ const AdminVMsPage = () => {
                                 </Button>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>Force Terminate</TooltipContent>
+                            <TooltipContent>Принудительное удаление</TooltipContent>
                           </Tooltip>
                         </div>
                       </TableCell>
@@ -270,14 +270,14 @@ const AdminVMsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} of {total}
+              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} из {total}
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-                Previous
+                Назад
               </Button>
               <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
-                Next
+                Далее
               </Button>
             </div>
           </div>
@@ -286,18 +286,18 @@ const AdminVMsPage = () => {
         {/* Confirm dialogs */}
         <ConfirmDialog
           open={confirm?.type === 'stop'}
-          title={`Force Stop "${confirm?.vm.name}"?`}
+          title={`Остановить "${confirm?.vm.name}"?`}
           description="This will immediately halt the VM. The tenant will be notified."
-          confirmLabel="Force Stop"
+          confirmLabel="Остановить"
           isLoading={stopVM.isPending}
           onConfirm={() => { if (confirm) { stopVM.mutate(confirm.vm.id); setConfirm(null); } }}
           onCancel={() => setConfirm(null)}
         />
         <ConfirmDialog
           open={confirm?.type === 'terminate'}
-          title={`Force Terminate "${confirm?.vm.name}"?`}
+          title={`Удалить "${confirm?.vm.name}"?`}
           description="This will permanently destroy the VM and all its data. This cannot be undone."
-          confirmLabel="Force Terminate"
+          confirmLabel="Удалить"
           variant="danger"
           isLoading={terminateVM.isPending}
           onConfirm={() => { if (confirm) { terminateVM.mutate(confirm.vm.id); setConfirm(null); } }}

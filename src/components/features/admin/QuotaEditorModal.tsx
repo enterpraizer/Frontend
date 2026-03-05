@@ -50,7 +50,7 @@ const QuotaField = ({ id, label, usedLabel, currentMin, exceeded, error, inputPr
     {exceeded && (
       <p className="flex items-center gap-1 text-xs text-destructive">
         <AlertTriangle className="h-3 w-3" />
-        Cannot set below current usage ({currentMin})
+        Нельзя установить ниже текущего использования ({currentMin})
       </p>
     )}
     {error && !exceeded && <p className="text-xs text-destructive">{error}</p>}
@@ -106,13 +106,13 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Quota — {tenant.name}</DialogTitle>
+          <DialogTitle>Изменить квоту — {tenant.name}</DialogTitle>
         </DialogHeader>
 
         {/* Usage context */}
         <div className="rounded-md bg-muted/50 border px-4 py-3 text-sm space-y-1">
           <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground mb-2">
-            Current usage
+            Текущее использование
           </p>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
             <span>vCPU: <strong>{usage.vcpu.used}</strong> / {quota.max_vcpu} cores</span>
@@ -125,7 +125,7 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <QuotaField
             id="max_vcpu"
-            label="Max vCPU (cores)"
+            label="Макс. vCPU (ядра)"
             usedLabel={`Currently using ${usage.vcpu.used} cores`}
             currentMin={usage.vcpu.used}
             exceeded={vcpuExceeded}
@@ -134,7 +134,7 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
           />
           <QuotaField
             id="max_ram_mb"
-            label="Max RAM (MB)"
+            label="Макс. RAM (МБ)"
             usedLabel={`Currently using ${usage.ram_mb.used} MB`}
             currentMin={usage.ram_mb.used}
             exceeded={ramExceeded}
@@ -143,7 +143,7 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
           />
           <QuotaField
             id="max_disk_gb"
-            label="Max Disk (GB)"
+            label="Макс. диск (ГБ)"
             usedLabel={`Currently using ${usage.disk_gb.used} GB`}
             currentMin={usage.disk_gb.used}
             exceeded={diskExceeded}
@@ -152,7 +152,7 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
           />
           <QuotaField
             id="max_vms"
-            label="Max VMs"
+            label="Макс. VM"
             usedLabel={`Currently using ${usage.vms.used} VMs`}
             currentMin={usage.vms.used}
             exceeded={vmsExceeded}
@@ -162,13 +162,13 @@ const QuotaEditorModal = ({ tenant, quota, usage, open, onClose }: QuotaEditorMo
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={anyExceeded || updateQuota.isPending}>
               {updateQuota.isPending ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</>
               ) : (
-                'Save Quota'
+                'Сохранить квоту'
               )}
             </Button>
           </DialogFooter>

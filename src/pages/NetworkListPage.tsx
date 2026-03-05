@@ -1,5 +1,5 @@
+import { formatRelativeMsk } from '@/lib/utils';
 import { useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
 import { Plus, Network, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -46,10 +46,10 @@ const NetworkListPage = () => {
     <div className="space-y-5">
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Networks</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Сети</h1>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Create Network
+          Создать сеть
         </Button>
       </div>
 
@@ -57,12 +57,12 @@ const NetworkListPage = () => {
       {!isLoading && networks.length === 0 ? (
         <EmptyState
           icon={<Network className="h-12 w-12" />}
-          title="No networks yet"
-          description="Create a network to connect your virtual machines."
+          title="Нет сетей"
+          description="Создайте сеть для подключения виртуальных машин."
           action={
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Create Network
+              Создать сеть
             </Button>
           }
         />
@@ -71,12 +71,12 @@ const NetworkListPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
+                <TableHead>Название</TableHead>
                 <TableHead>CIDR</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Visibility</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead>Видимость</TableHead>
+                <TableHead>Создана</TableHead>
+                <TableHead className="text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,11 +101,11 @@ const NetworkListPage = () => {
                               : 'bg-slate-100 text-slate-600 border-slate-200'
                           }
                         >
-                          {net.is_public ? 'Public' : 'Private'}
+                          {net.is_public ? 'Публичная' : 'Приватная'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs">
-                        {formatDistanceToNow(new Date(net.created_at), { addSuffix: true })}
+                        {formatRelativeMsk(net.created_at)}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end">
@@ -131,15 +131,15 @@ const NetworkListPage = () => {
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data?.total ?? 0)}{' '}
-            of {data?.total ?? 0}
+            Показано {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data?.total ?? 0)}{' '}
+            из {data?.total ?? 0}
           </span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              Назад
             </Button>
             <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
-              Next
+              Далее
             </Button>
           </div>
         </div>
@@ -151,9 +151,9 @@ const NetworkListPage = () => {
       {/* ── Delete confirm ───────────────────────────────────────────────── */}
       <ConfirmDialog
         open={!!deleteTarget}
-        title={`Delete "${deleteTarget?.name}"?`}
-        description="This will permanently delete the network. Attached VMs will lose connectivity."
-        confirmLabel="Delete"
+        title={`Удалить "${deleteTarget?.name}"?`}
+        description="Это навсегда удалит сеть. Подключённые VM потеряют связь."
+        confirmLabel="Удалить"
         variant="danger"
         isLoading={deleteNetwork.isPending}
         onConfirm={() => {

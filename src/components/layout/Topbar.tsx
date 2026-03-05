@@ -46,7 +46,7 @@ export default function Topbar({ title, adminBadge = false }: TopbarProps) {
           <h1 className="text-lg font-semibold">{title}</h1>
           {adminBadge && (
             <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300">
-              Admin Panel
+              Панель администратора
             </Badge>
           )}
         </div>
@@ -58,7 +58,7 @@ export default function Topbar({ title, adminBadge = false }: TopbarProps) {
         <button
           onClick={toggleTheme}
           className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
         >
           {theme === 'dark'
             ? <Sun  className="h-5 w-5" />
@@ -93,7 +93,7 @@ export default function Topbar({ title, adminBadge = false }: TopbarProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/profile')}>
                 <UserCircle className="mr-2 h-4 w-4" />
-                Profile
+                Профиль
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -101,7 +101,7 @@ export default function Topbar({ title, adminBadge = false }: TopbarProps) {
                 className="text-destructive focus:text-destructive"
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                Выйти
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

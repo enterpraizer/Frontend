@@ -45,7 +45,7 @@ export default function RegisterPage() {
             <Cloud className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">CloudIaaS</h1>
-          <p className="text-sm text-muted-foreground">Create a new account</p>
+          <p className="text-sm text-muted-foreground">Создать новый аккаунт</p>
         </div>
 
         <Card>
@@ -55,18 +55,18 @@ export default function RegisterPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 text-2xl">
                   ✓
                 </div>
-                <p className="font-medium">Registration successful!</p>
+                <p className="font-medium">Регистрация прошла успешно!</p>
                 <p className="text-sm text-muted-foreground">
-                  Check your email to confirm your account.
+                  Проверьте почту для подтверждения аккаунта.
                 </p>
                 <Link to="/login" className="text-sm font-medium text-primary hover:underline mt-2">
-                  Back to sign in
+                  Вернуться ко входу
                 </Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Эл. почта</Label>
                   <Input
                     id="email"
                     type="email"
@@ -81,7 +81,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username">Логин</Label>
                   <Input
                     id="username"
                     type="text"
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Пароль</Label>
                   <Input
                     id="password"
                     type="password"
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="confirm_password">Confirm password</Label>
+                  <Label htmlFor="confirm_password">Подтвердите пароль</Label>
                   <Input
                     id="confirm_password"
                     type="password"
@@ -136,16 +136,16 @@ export default function RegisterPage() {
 
                 <Button type="submit" disabled={isSubmitting} className="w-full mt-1">
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create account
+                  Создать аккаунт
                 </Button>
               </form>
             )}
 
             {!success && (
               <p className="mt-5 text-center text-sm text-muted-foreground">
-                Already have an account?{' '}
+                Уже есть аккаунт?{' '}
                 <Link to="/login" className="font-medium text-primary hover:underline">
-                  Sign in
+                  Войти
                 </Link>
               </p>
             )}

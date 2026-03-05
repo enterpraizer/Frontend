@@ -34,7 +34,7 @@ const ConfirmDialog = ({
       </DialogHeader>
       <DialogFooter className="gap-2">
         <Button variant="outline" onClick={onCancel} disabled={isLoading}>
-          Cancel
+          Отмена
         </Button>
         <Button
           variant={variant === 'danger' ? 'destructive' : 'default'}

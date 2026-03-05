@@ -52,13 +52,13 @@ const CreateNetworkModal = ({ open, onClose }: CreateNetworkModalProps) => {
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Network</DialogTitle>
+          <DialogTitle>Создать сеть</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="net-name">Network Name</Label>
+            <Label htmlFor="net-name">Название сети</Label>
             <Input id="net-name" placeholder="my-network" {...register('name')} />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -67,10 +67,10 @@ const CreateNetworkModal = ({ open, onClose }: CreateNetworkModalProps) => {
 
           {/* CIDR */}
           <div className="space-y-1.5">
-            <Label htmlFor="net-cidr">CIDR Block</Label>
+            <Label htmlFor="net-cidr">Блок CIDR</Label>
             <Input id="net-cidr" placeholder="192.168.1.0/24" {...register('cidr')} />
             <p className="text-xs text-muted-foreground">
-              Enter a valid IPv4 CIDR notation, e.g. <code>10.0.0.0/16</code>
+              Введите корректный адрес IPv4 CIDR, например <code>10.0.0.0/16</code>
             </p>
             {errors.cidr && (
               <p className="text-xs text-destructive">{errors.cidr.message}</p>
@@ -80,9 +80,9 @@ const CreateNetworkModal = ({ open, onClose }: CreateNetworkModalProps) => {
           {/* Public toggle */}
           <div className="flex items-center justify-between rounded-md border p-4">
             <div>
-              <p className="text-sm font-medium">Public Network</p>
+              <p className="text-sm font-medium">Публичная сеть</p>
               <p className="text-xs text-muted-foreground">
-                Allow access from outside the tenant
+                Разрешить доступ извне
               </p>
             </div>
             <button
@@ -104,16 +104,16 @@ const CreateNetworkModal = ({ open, onClose }: CreateNetworkModalProps) => {
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Отмена
             </Button>
             <Button type="submit" disabled={createNetwork.isPending}>
               {createNetwork.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating…
+                  Создаём…
                 </>
               ) : (
-                'Create Network'
+                'Создать сеть'
               )}
             </Button>
           </DialogFooter>
