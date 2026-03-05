@@ -116,7 +116,7 @@ const TenantRow = ({ tenant, onEditQuota, onToggle }: TenantRowProps) => {
                 <Settings2 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit Quota</TooltipContent>
+            <TooltipContent>Изменить квоту</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -130,7 +130,7 @@ const TenantRow = ({ tenant, onEditQuota, onToggle }: TenantRowProps) => {
                 {tenant.is_active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{tenant.is_active ? 'Deactivate' : 'Activate'}</TooltipContent>
+            <TooltipContent>{tenant.is_active ? 'Деактивировать' : 'Активировать'}</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -182,7 +182,7 @@ const AdminTenantsPage = () => {
       <div className="space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Tenant Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Управление арендаторами</h1>
         </div>
 
         {/* Search */}
@@ -190,7 +190,7 @@ const AdminTenantsPage = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search by name or slug…"
+            placeholder="Поиск по имени или слагу…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0); }}
           />
@@ -200,21 +200,21 @@ const AdminTenantsPage = () => {
         {!isLoading && tenants.length === 0 ? (
           <EmptyState
             icon={<Building2 className="h-12 w-12" />}
-            title="No tenants found"
-            description="No tenants match your search."
+            title="Арендаторы не найдены"
+            description="Ни один арендатор не соответствует вашему поиску."
           />
         ) : (
           <Card>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name / Slug</TableHead>
-                  <TableHead>Owner ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>VMs</TableHead>
+                  <TableHead>Имя / Слаг</TableHead>
+                  <TableHead>ID владельца</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>VM</TableHead>
                   <TableHead>vCPU</TableHead>
                   <TableHead>RAM</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -243,15 +243,15 @@ const AdminTenantsPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data?.total ?? 0)}{' '}
-              of {data?.total ?? 0}
+              Показано {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, data?.total ?? 0)}{' '}
+              из {data?.total ?? 0}
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-                Previous
+                Назад
               </Button>
               <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
-                Next
+                Далее
               </Button>
             </div>
           </div>
@@ -271,13 +271,13 @@ const AdminTenantsPage = () => {
         {/* Toggle confirm */}
         <ConfirmDialog
           open={!!toggleTarget}
-          title={`${toggleTarget?.is_active ? 'Deactivate' : 'Activate'} "${toggleTarget?.name}"?`}
+          title={`${toggleTarget?.is_active ? 'Деактивировать' : 'Активировать'} "${toggleTarget?.name}"?`}
           description={
             toggleTarget?.is_active
-              ? 'This will prevent the tenant and their users from accessing the platform.'
-              : 'This will restore access for the tenant and their users.'
+              ? 'Арендатор и его пользователи потеряют доступ к платформе.'
+              : 'Доступ к платформе для арендатора и его пользователей будет восстановлен.'
           }
-          confirmLabel={toggleTarget?.is_active ? 'Deactivate' : 'Activate'}
+          confirmLabel={toggleTarget?.is_active ? 'Деактивировать' : 'Активировать'}
           variant={toggleTarget?.is_active ? 'danger' : 'default'}
           isLoading={toggleActive.isPending}
           onConfirm={() => {

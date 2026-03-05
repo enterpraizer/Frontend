@@ -9,22 +9,22 @@ interface VMStatusBadgeProps {
 
 const config: Record<VMStatus, { label: string; className: string; dotClass: string }> = {
   pending: {
-    label: 'Pending',
+    label: 'Ожидание',
     className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     dotClass: 'bg-yellow-500 animate-pulse',
   },
   running: {
-    label: 'Running',
+    label: 'Запущена',
     className: 'bg-green-100 text-green-800 border-green-200',
     dotClass: 'bg-green-500',
   },
   stopped: {
-    label: 'Stopped',
+    label: 'Остановлена',
     className: 'bg-slate-100 text-slate-600 border-slate-200',
     dotClass: 'bg-slate-400',
   },
   terminated: {
-    label: 'Terminated',
+    label: 'Удалена',
     className: 'bg-red-100 text-red-800 border-red-200',
     dotClass: 'bg-red-500',
   },

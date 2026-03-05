@@ -9,6 +9,8 @@ const ProtectedRoute = ({ requireTenant = true }: Props) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  // User already completed onboarding — skip it
+  if (!requireTenant && user?.tenant_id) return <Navigate to="/dashboard" replace />;
   if (requireTenant && !user?.tenant_id) return <Navigate to="/onboarding" replace />;
 
   return <Outlet />;

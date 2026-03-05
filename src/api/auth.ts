@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Tokens, User } from '../types';
+import type { Tokens, User, TenantTokenResponse } from '../types';
 
 export interface LoginPayload {
   username: string;
@@ -29,7 +29,9 @@ export const authApi = {
 
   /** POST /auth/register */
   register: (payload: RegisterPayload) =>
-    apiClient.post<User>('/auth/register', payload).then((r) => r.data),
+    apiClient
+      .post<{ message: string; email: string }>('/auth/register', payload)
+      .then((r) => r.data),
 
   /** GET /auth/register_confirm?token=... */
   confirmEmail: (token: string) =>
@@ -46,7 +48,7 @@ export const authApi = {
 
   /** POST /auth/tenant — create tenant during onboarding, returns new tokens */
   createTenant: (name: string) =>
-    apiClient.post<Tokens>('/auth/tenant', { name }).then((r) => r.data),
+    apiClient.post<TenantTokenResponse>('/auth/tenant', { name }).then((r) => r.data),
 
   /** PATCH /auth/change_password */
   changePassword: (payload: { old_password: string; new_password: string }) =>

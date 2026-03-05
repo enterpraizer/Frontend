@@ -6,6 +6,7 @@ export const queryKeys = {
     all: ['vms'] as const,
     list: (params?: ListParams) => ['vms', 'list', params] as const,
     detail: (id: string) => ['vms', id] as const,
+    suggestions: (vmId: string) => ['vms', vmId, 'suggestions'] as const,
   },
 
   networks: {

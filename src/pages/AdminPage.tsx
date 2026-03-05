@@ -1,3 +1,4 @@
+import { formatRelativeMsk } from '@/lib/utils';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -22,7 +23,6 @@ import {
   Play,
   Users,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -118,7 +118,7 @@ const AdminPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Панель администратора</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Platform-wide overview across all tenants.
         </p>
@@ -131,43 +131,43 @@ const AdminPage = () => {
         ) : stats ? (
           <>
             <StatCard
-              title="Total Tenants"
+              title="Всего арендаторов"
               value={stats.total_tenants}
               icon={<Building2 className="h-5 w-5" />}
               color="bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
             />
             <StatCard
-              title="Active Tenants"
+              title="Активных арендаторов"
               value={stats.active_tenants}
               icon={<Users className="h-5 w-5" />}
               color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
             />
             <StatCard
-              title="Total VMs"
+              title="Всего VM"
               value={stats.total_vms}
               icon={<Server className="h-5 w-5" />}
               color="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
             />
             <StatCard
-              title="Running VMs"
+              title="Запущено VM"
               value={stats.running_vms}
               icon={<Play className="h-5 w-5" />}
               color="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
             />
             <StatCard
-              title="vCPU Allocated"
+              title="vCPU выделено"
               value={`${stats.total_vcpu_allocated} cores`}
               icon={<Cpu className="h-5 w-5" />}
               color="bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
             />
             <StatCard
-              title="RAM Allocated"
+              title="RAM выделено"
               value={fmtBytes(stats.total_ram_mb_allocated)}
               icon={<MemoryStick className="h-5 w-5" />}
               color="bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400"
             />
             <StatCard
-              title="Inactive Tenants"
+              title="Неактивных арендаторов"
               value={stats.total_tenants - stats.active_tenants}
               icon={<HardDrive className="h-5 w-5" />}
               color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
@@ -182,7 +182,7 @@ const AdminPage = () => {
         {/* Chart A: Top 5 Tenants by VM Count */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Top 5 Tenants by VM Count</CardTitle>
+            <CardTitle className="text-base">Топ-5 арендаторов по количеству VM</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -218,14 +218,14 @@ const AdminPage = () => {
         {/* Chart B: VM Status Distribution */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">VM Status Distribution</CardTitle>
+            <CardTitle className="text-base">Распределение VM по статусам</CardTitle>
           </CardHeader>
           <CardContent>
             {vmsLoading ? (
               <ChartSkeleton />
             ) : vmStatusData.length === 0 ? (
               <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
-                No VMs found.
+                Нет VM.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={260}>
@@ -266,7 +266,7 @@ const AdminPage = () => {
         {tenantVcpuData.length > 0 && (
           <Card className="lg:col-span-2">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Tenants Overview</CardTitle>
+              <CardTitle className="text-base">Обзор арендаторов</CardTitle>
               <p className="text-xs text-muted-foreground">
                 Active tenants registered on the platform
               </p>
@@ -296,7 +296,7 @@ const AdminPage = () => {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Recent VMs (last 10)
+            Recent VMs (последние 10)
           </h2>
           <Button variant="link" size="sm" onClick={() => navigate('/admin/vms')}>
             View all →
@@ -315,17 +315,17 @@ const AdminPage = () => {
             </CardContent>
           ) : !vmsData?.items?.length ? (
             <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              No VMs found.
+              Нет VM.
             </CardContent>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>VM Name</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Название VM</TableHead>
+                  <TableHead>Статус</TableHead>
                   <TableHead>vCPU</TableHead>
                   <TableHead>RAM</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>Создана</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -338,7 +338,7 @@ const AdminPage = () => {
                     <TableCell>{vm.vcpu}</TableCell>
                     <TableCell>{Math.round(vm.ram_mb / 1024)} GB</TableCell>
                     <TableCell className="text-muted-foreground text-xs">
-                      {formatDistanceToNow(new Date(vm.created_at), { addSuffix: true })}
+                      {formatRelativeMsk(vm.created_at)}
                     </TableCell>
                   </TableRow>
                 ))}
