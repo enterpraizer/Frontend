@@ -80,20 +80,15 @@ function SidebarLink({
           onClick={onClick}
           className={({ isActive }) =>
             cn(
-              'flex items-center rounded-md text-sm font-medium transition-all duration-150 cursor-pointer',
-              'text-slate-400 hover:bg-slate-700 hover:text-white',
-              // Mobile: full row
-              'gap-3 px-3 py-2',
-              // Tablet (md–xl): icon-only centered
+              'group flex items-center rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none',
+              'gap-3 px-3 py-2.5',
               'md:justify-center md:px-2',
-              // Desktop (xl): full if not collapsed, icon-only if collapsed
               isCollapsed
                 ? 'xl:justify-center xl:px-2'
                 : 'xl:justify-start xl:gap-3 xl:px-3',
-              // Active state — blue accent
               isActive
-                ? 'bg-blue-600/20 text-blue-400 border-l-2 border-blue-400 pl-[10px]'
-                : 'border-l-2 border-transparent',
+                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-white/10',
             )
           }
         >
