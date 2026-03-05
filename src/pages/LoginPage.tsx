@@ -48,14 +48,14 @@ export default function LoginPage() {
             <Cloud className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">CloudIaaS</h1>
-          <p className="text-sm text-muted-foreground">Sign in to your account</p>
+          <p className="text-sm text-muted-foreground">Войдите в свой аккаунт</p>
         </div>
 
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Логин</Label>
                 <Input
                   id="username"
                   type="text"
@@ -70,7 +70,7 @@ export default function LoginPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Пароль</Label>
                 <Input
                   id="password"
                   type="password"
@@ -95,14 +95,14 @@ export default function LoginPage() {
 
               <Button type="submit" disabled={isSubmitting} className="w-full mt-1">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign in
+                Войти
               </Button>
             </form>
 
             <p className="mt-5 text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Нет аккаунта?{' '}
               <Link to="/register" className="font-medium text-primary hover:underline">
-                Register
+                Зарегистрироваться
               </Link>
             </p>
           </CardContent>

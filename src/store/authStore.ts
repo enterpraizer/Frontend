@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User, Tokens } from '../types';
 
 interface AuthState {
@@ -68,14 +68,22 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(() => sessionStorage),
+      // accessToken intentionally NOT persisted — short-lived, XSS mitigation.
+      // refreshToken is persisted so sessions survive page refresh.
       partialize: (s) => ({
         user: s.user,
-        accessToken: s.accessToken,
         refreshToken: s.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          const flags = computeFlags(state.accessToken, state.user);
+          // If a refresh token exists the user is considered authenticated;
+          // the access token will be obtained via the refresh interceptor on first 401.
+          const flags = {
+            isAuthenticated: !!state.refreshToken,
+            isAdmin: state.user?.role === 'admin',
+            hasTenant: !!state.user?.tenant_id,
+          };
           state.isAuthenticated = flags.isAuthenticated;
           state.isAdmin = flags.isAdmin;
           state.hasTenant = flags.hasTenant;

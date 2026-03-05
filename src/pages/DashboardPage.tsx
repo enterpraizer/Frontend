@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import {
+  Bot,
+  CheckCircle2,
   Cpu,
   HardDrive,
   Server,
@@ -14,25 +17,31 @@ import {
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import ResourceGauge from '@/components/ui/ResourceGauge';
 import StatCard from '@/components/ui/StatCard';
 
 import { useResourceUsage, useVMSummary, useActivityLog } from '@/hooks/useDashboard';
+import { useVMList } from '@/hooks/useVMs';
+import { vmsApi } from '@/api/vms';
+import { queryKeys } from '@/api/queryKeys';
 import { useAuthStore } from '@/store/authStore';
+import type { VM, VmSuggestion } from '@/types';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  const h = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Moscow' })).getHours();
+  if (h < 12) return 'Доброе утро';
+  if (h < 18) return 'Добрый день';
+  return 'Добрый вечер';
 }
 
 function formatDate(): string {
-  return new Date().toLocaleDateString('en-US', {
+  return new Date().toLocaleDateString('ru-RU', {
+    timeZone: 'Europe/Moscow',
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -41,7 +50,8 @@ function formatDate(): string {
 }
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
+  return new Date(iso).toLocaleString('ru-RU', {
+    timeZone: 'Europe/Moscow',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -76,6 +86,42 @@ const StatSkeleton = () => (
   </Card>
 );
 
+// ─── AI Suggestion badge row (one per VM) ────────────────────────────────────
+
+function pluralRu(n: number, one: string, few: string, many: string) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return `${n} ${many}`;
+  if (mod10 === 1) return `${n} ${one}`;
+  if (mod10 >= 2 && mod10 <= 4) return `${n} ${few}`;
+  return `${n} ${many}`;
+}
+
+const VMAISuggestionRow = ({ vm }: { vm: VM }) => {
+  const navigate = useNavigate();
+  const { data: suggestions } = useQueries({
+    queries: [{ queryKey: queryKeys.vms.suggestions(vm.id), queryFn: () => vmsApi.listSuggestions(vm.id), staleTime: 5 * 60 * 1000 }],
+  })[0] ?? {};
+  const count = (suggestions as VmSuggestion[] | undefined)?.filter((s) => s.status === 'pending').length ?? 0;
+  if (count === 0) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => navigate(`/vms/${vm.id}`)}
+      className="flex w-full items-center justify-between rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-left transition-colors hover:bg-amber-100 dark:hover:bg-amber-950/30"
+    >
+      <div className="flex items-center gap-2.5">
+        <Bot className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <span className="text-sm font-medium">{vm.name}</span>
+      </div>
+      <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100">
+        {pluralRu(count, 'рекомендация ИИ', 'рекомендации ИИ', 'рекомендаций ИИ')}
+      </Badge>
+    </button>
+  );
+};
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const DashboardPage = () => {
@@ -85,6 +131,24 @@ const DashboardPage = () => {
   const { data: usage, isLoading: usageLoading } = useResourceUsage();
   const { data: summary, isLoading: summaryLoading } = useVMSummary();
   const { data: activity, isLoading: activityLoading } = useActivityLog();
+  const { data: vmList } = useVMList({ limit: 100 });
+
+  // Aggregate pending suggestions for all VMs in parallel (uses cache from VMAISuggestionRow)
+  const vmIds = vmList?.items.map((v) => v.id) ?? [];
+  const suggestionResults = useQueries({
+    queries: vmIds.map((vmId) => ({
+      queryKey: queryKeys.vms.suggestions(vmId),
+      queryFn: () => vmsApi.listSuggestions(vmId),
+      staleTime: 5 * 60 * 1000,
+      enabled: vmIds.length > 0,
+    })),
+  });
+  const suggestionsLoading = suggestionResults.some((r) => r.isLoading);
+  const totalPendingSuggestions = suggestionResults.reduce(
+    (sum, r) =>
+      sum + ((r.data as VmSuggestion[] | undefined)?.filter((s) => s.status === 'pending').length ?? 0),
+    0
+  );
 
   // Detect any resource at 100 %
   const exceededResources = useMemo(() => {
@@ -107,9 +171,9 @@ const DashboardPage = () => {
       {exceededResources.map(({ key, label }) => (
         <Alert variant="destructive" key={key}>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Quota Exceeded</AlertTitle>
+          <AlertTitle>Квота исчерпана</AlertTitle>
           <AlertDescription>
-            You have reached your <strong>{label}</strong> quota. Contact support to upgrade.
+            Вы достигли лимита <strong>{label}</strong>. Обратитесь в поддержку для увеличения.
           </AlertDescription>
         </Alert>
       ))}
@@ -120,7 +184,7 @@ const DashboardPage = () => {
           {greeting()}, {user?.username ?? 'there'} 👋
         </h1>
         <p className="text-muted-foreground mt-1">
-          {formatDate()} &nbsp;·&nbsp; Workspace:{' '}
+          {formatDate()} &nbsp;·&nbsp; Рабочее пространство:{' '}
           <span className="font-medium text-foreground">{tenantSlug}</span>
         </p>
       </div>
@@ -128,7 +192,7 @@ const DashboardPage = () => {
       {/* ── SECTION 2 — Resource Usage ─────────────────────────────────── */}
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-          Resource Usage
+          Использование ресурсов
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {usageLoading || !usage ? (
@@ -192,7 +256,7 @@ const DashboardPage = () => {
       {/* ── SECTION 3 — VM Status Summary ─────────────────────────────── */}
       <section>
         <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3">
-          Virtual Machines
+          Виртуальные машины
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {summaryLoading || !summary ? (
@@ -204,19 +268,19 @@ const DashboardPage = () => {
           ) : (
             <>
               <StatCard
-                title="Total VMs"
+                title="Всего VM"
                 value={summary.total}
                 icon={<Server className="h-5 w-5" />}
                 color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
               />
               <StatCard
-                title="Running"
+                title="Запущено"
                 value={summary.running}
                 icon={<Play className="h-5 w-5" />}
                 color="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
               />
               <StatCard
-                title="Stopped"
+                title="Остановлено"
                 value={summary.stopped}
                 icon={<Pause className="h-5 w-5" />}
                 color="bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
@@ -226,18 +290,44 @@ const DashboardPage = () => {
         </div>
       </section>
 
-      {/* ── SECTION 4 — Recent Activity ────────────────────────────────── */}
+      {/* ── SECTION 4 — AI Suggestions ────────────────────────────────── */}
+      {vmList && vmList.items.length > 0 && (
+        <section>
+          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
+            <Bot className="h-4 w-4" />
+            Рекомендации ИИ
+          </h2>
+          {suggestionsLoading ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 text-sm text-amber-700 dark:text-amber-300 animate-pulse">
+              Загружаем рекомендации…
+            </div>
+          ) : totalPendingSuggestions === 0 ? (
+            <div className="rounded-lg border border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800 px-4 py-3 text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              Нет активных рекомендаций — все VM работают оптимально.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {vmList.items.map((vm) => (
+                <VMAISuggestionRow key={vm.id} vm={vm} />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── SECTION 5 — Recent Activity ────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
             <Activity className="h-4 w-4" />
-            Recent Activity
+            Последние действия
           </h2>
           <button
             onClick={() => navigate('/admin/audit')}
             className="text-xs text-blue-500 hover:underline"
           >
-            View all →
+            Показать все →
           </button>
         </div>
 
@@ -255,16 +345,16 @@ const DashboardPage = () => {
             </CardContent>
           ) : !activity || activity.length === 0 ? (
             <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              No recent activity.
+              Нет последних действий.
             </CardContent>
           ) : (
             <>
               <CardHeader className="pb-2 pt-4 px-6">
                 <div className="grid grid-cols-[1fr_1fr_1fr_2fr] text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <span>Time</span>
-                  <span>Action</span>
-                  <span>Resource</span>
-                  <span>Details</span>
+                  <span>Время</span>
+                  <span>Действие</span>
+                  <span>Ресурс</span>
+                  <span>Детали</span>
                 </div>
               </CardHeader>
               <CardContent className="px-6 pb-4">
@@ -296,7 +386,7 @@ const DashboardPage = () => {
         size="lg"
         className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg md:hidden"
         onClick={() => navigate('/vms?create=true')}
-        aria-label="Create VM"
+        aria-label="Создать VM"
       >
         <Plus className="h-6 w-6" />
       </Button>

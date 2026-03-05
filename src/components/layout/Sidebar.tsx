@@ -38,28 +38,28 @@ interface NavSection {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    heading: 'COMPUTE',
+    heading: 'ВЫЧИСЛЕНИЯ',
     items: [
-      { label: 'Dashboard',        to: '/dashboard', icon: <LayoutDashboard className="h-4 w-4 shrink-0" /> },
-      { label: 'Virtual Machines', to: '/vms',       icon: <Server          className="h-4 w-4 shrink-0" /> },
+      { label: 'Панель управления', to: '/dashboard', icon: <LayoutDashboard className="h-4 w-4 shrink-0" /> },
+      { label: 'Виртуальные машины', to: '/vms',       icon: <Server          className="h-4 w-4 shrink-0" /> },
     ],
   },
   {
-    heading: 'NETWORKING',
-    items: [{ label: 'Networks', to: '/networks', icon: <Network className="h-4 w-4 shrink-0" /> }],
+    heading: 'СЕТЬ',
+    items: [{ label: 'Сети', to: '/networks', icon: <Network className="h-4 w-4 shrink-0" /> }],
   },
   {
-    heading: 'ACCOUNT',
-    items: [{ label: 'Profile', to: '/profile', icon: <User className="h-4 w-4 shrink-0" /> }],
+    heading: 'АККАУНТ',
+    items: [{ label: 'Профиль', to: '/profile', icon: <User className="h-4 w-4 shrink-0" /> }],
   },
   {
-    heading: 'ADMINISTRATION',
+    heading: 'АДМИНИСТРИРОВАНИЕ',
     adminOnly: true,
     items: [
-      { label: 'Admin Dashboard', to: '/admin',         icon: <Shield        className="h-4 w-4 shrink-0" /> },
-      { label: 'Tenants',         to: '/admin/tenants', icon: <Building2     className="h-4 w-4 shrink-0" /> },
-      { label: 'All VMs',         to: '/admin/vms',     icon: <Layers        className="h-4 w-4 shrink-0" /> },
-      { label: 'Audit Log',       to: '/admin/audit',   icon: <ClipboardList className="h-4 w-4 shrink-0" /> },
+      { label: 'Дашборд',           to: '/admin',         icon: <Shield        className="h-4 w-4 shrink-0" /> },
+      { label: 'Арендаторы',        to: '/admin/tenants', icon: <Building2     className="h-4 w-4 shrink-0" /> },
+      { label: 'Все VM',            to: '/admin/vms',     icon: <Layers        className="h-4 w-4 shrink-0" /> },
+      { label: 'Журнал аудита',     to: '/admin/audit',   icon: <ClipboardList className="h-4 w-4 shrink-0" /> },
     ],
   },
 ];
@@ -117,7 +117,7 @@ export default function Sidebar() {
     navigate('/login', { replace: true });
   };
 
-  const workspaceName = user?.tenant_id ?? 'No workspace';
+  const workspaceName = user?.tenant_id ?? 'Нет рабочего пространства';
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -169,7 +169,7 @@ export default function Sidebar() {
               'hover:bg-slate-800 hover:text-white transition-colors',
               'hidden xl:flex',
             )}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isCollapsed ? 'Развернуть панель' : 'Свернуть панель'}
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
@@ -230,12 +230,12 @@ export default function Sidebar() {
                 <button
                   onClick={handleLogout}
                   className="shrink-0 text-slate-400 hover:text-white transition-colors"
-                  aria-label="Logout"
+                  aria-label="Выйти"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right">Logout</TooltipContent>
+              <TooltipContent side="right">Выйти</TooltipContent>
             </Tooltip>
           </div>
         )}

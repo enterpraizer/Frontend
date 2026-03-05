@@ -67,12 +67,14 @@ const AccountTab = () => {
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
     try {
-      const updated = await usersApi.updateProfile(user.id, {
+      await usersApi.updateProfile(user.id, {
         first_name: values.first_name || undefined,
         last_name: values.last_name || undefined,
         avatar_url: values.avatar_url || undefined,
       });
-      setUser(updated);
+      // Re-fetch from /auth/me so tenant_id (from JWT) is always present in store
+      const refreshed = await authApi.me();
+      setUser(refreshed);
       toast.success('Profile updated');
     } catch {
       toast.error('Failed to update profile');
@@ -113,7 +115,7 @@ const AccountTab = () => {
                 {user.role}
               </Badge>
               {user.is_active && (
-                <Badge className="bg-green-100 text-green-700 border-green-200">Active</Badge>
+                <Badge className="bg-green-100 text-green-700 border-green-200">Активен</Badge>
               )}
             </div>
           </div>
@@ -123,28 +125,28 @@ const AccountTab = () => {
       {/* ── Edit form ───────────────────────────────────────────────────── */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Edit Profile</CardTitle>
+          <CardTitle className="text-base">Редактировать профиль</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="first_name">First Name</Label>
-                <Input id="first_name" placeholder="Jane" {...register('first_name')} />
+                <Label htmlFor="first_name">Имя</Label>
+                <Input id="first_name" placeholder="Иван" {...register('first_name')} />
                 {errors.first_name && (
                   <p className="text-xs text-destructive">{errors.first_name.message}</p>
                 )}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input id="last_name" placeholder="Doe" {...register('last_name')} />
+                <Label htmlFor="last_name">Фамилия</Label>
+                <Input id="last_name" placeholder="Иванов" {...register('last_name')} />
                 {errors.last_name && (
                   <p className="text-xs text-destructive">{errors.last_name.message}</p>
                 )}
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="avatar_url">Avatar URL</Label>
+              <Label htmlFor="avatar_url">URL аватара</Label>
               <Input
                 id="avatar_url"
                 type="url"
@@ -157,9 +159,9 @@ const AccountTab = () => {
             </div>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving…</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Сохранение…</>
               ) : (
-                'Save Changes'
+                'Сохранить изменения'
               )}
             </Button>
           </form>
@@ -212,21 +214,21 @@ const WorkspaceTab = () => {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Building2 className="h-4 w-4" />
-            Workspace
+            Рабочее пространство
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Tenant ID</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">ID арендатора</p>
               <code className="text-xs bg-muted px-2 py-1 rounded">{user?.tenant_id ?? '—'}</code>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Member Since</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Участник с</p>
               <span className="flex items-center gap-1.5 text-sm">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                 {/* tenant created_at not in user object, show user object placeholder */}
-                Active
+                Активен
               </span>
             </div>
           </div>
@@ -234,22 +236,22 @@ const WorkspaceTab = () => {
       </Card>
 
       {/* Usage gauges */}
-      {usage && <QuotaSummaryCard usage={usage} title="Current Usage" />}
+      {usage && <QuotaSummaryCard usage={usage} title="Текущее использование" />}
 
       {/* Quota limits table */}
       {quotaRows.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Quota Limits</CardTitle>
+            <CardTitle className="text-base">Лимиты квоты</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Resource</TableHead>
-                  <TableHead>Limit</TableHead>
-                  <TableHead>Used</TableHead>
-                  <TableHead>Utilization</TableHead>
+                  <TableHead>Ресурс</TableHead>
+                  <TableHead>Лимит</TableHead>
+                  <TableHead>Использовано</TableHead>
+                  <TableHead>Загрузка</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -284,9 +286,9 @@ const WorkspaceTab = () => {
         <CardContent className="flex items-start gap-4 pt-6">
           <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-sm">Need more resources?</p>
+            <p className="font-medium text-sm">Нужно больше ресурсов?</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Contact your administrator to upgrade your quota limits.
+              Свяжитесь с администратором для увеличения лимитов квоты.
             </p>
           </div>
         </CardContent>
@@ -332,12 +334,12 @@ const SecurityTab = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Change Password</CardTitle>
+          <CardTitle className="text-base">Изменить пароль</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
             <div className="space-y-1.5">
-              <Label htmlFor="old_password">Current Password</Label>
+              <Label htmlFor="old_password">Текущий пароль</Label>
               <Input
                 id="old_password"
                 type="password"
@@ -350,7 +352,7 @@ const SecurityTab = () => {
             </div>
             <Separator />
             <div className="space-y-1.5">
-              <Label htmlFor="new_password">New Password</Label>
+              <Label htmlFor="new_password">Новый пароль</Label>
               <Input
                 id="new_password"
                 type="password"
@@ -362,7 +364,7 @@ const SecurityTab = () => {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="confirm_new_password">Confirm New Password</Label>
+              <Label htmlFor="confirm_new_password">Повторите новый пароль</Label>
               <Input
                 id="confirm_new_password"
                 type="password"
@@ -375,9 +377,9 @@ const SecurityTab = () => {
             </div>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating…</>
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Обновление…</>
               ) : (
-                'Update Password'
+                'Обновить пароль'
               )}
             </Button>
           </form>
@@ -391,14 +393,14 @@ const SecurityTab = () => {
 
 const ProfilePage = () => (
   <div className="max-w-3xl space-y-2">
-    <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-    <p className="text-muted-foreground text-sm">Manage your account, workspace, and security settings.</p>
+    <h1 className="text-2xl font-bold tracking-tight">Профиль</h1>
+    <p className="text-muted-foreground text-sm">Управляйте аккаунтом, рабочим пространством и настройками безопасности.</p>
     <div className="pt-2">
       <Tabs defaultValue="account">
         <TabsList className="mb-6">
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="workspace">Workspace</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="account">Аккаунт</TabsTrigger>
+          <TabsTrigger value="workspace">Рабочее пространство</TabsTrigger>
+          <TabsTrigger value="security">Безопасность</TabsTrigger>
         </TabsList>
         <TabsContent value="account"><AccountTab /></TabsContent>
         <TabsContent value="workspace"><WorkspaceTab /></TabsContent>

@@ -18,6 +18,11 @@ export interface Tokens {
   token_type: string;
 }
 
+export interface TenantTokenResponse extends Tokens {
+  tenant_id: string;
+  tenant_slug: string;
+}
+
 // ─── Tenant ──────────────────────────────────────────────────────────────────
 
 export interface Tenant {
@@ -52,6 +57,28 @@ export interface VMCreate {
   ram_mb: number;
   disk_gb: number;
 }
+
+// ─── AI / Suggestions ────────────────────────────────────────────────────────
+
+export interface VMSuggestResponse {
+  vcpu: number;
+  ram_mb: number;
+  disk_gb: number;
+  reasoning: string;
+  confidence: number;
+}
+
+export interface VmSuggestion {
+  id: string;
+  suggestion_text: string;
+  suggested_config: Record<string, unknown> | null;
+  confidence: number;
+  status: 'pending' | 'accepted' | 'dismissed';
+  created_at: string;
+}
+
+/** @deprecated Use VmSuggestion */
+export type AISuggestion = VmSuggestion;
 
 // ─── Network ─────────────────────────────────────────────────────────────────
 
@@ -113,4 +140,11 @@ export interface ApiError {
   resource?: string;
   requested?: number;
   available?: number;
+}
+
+export interface TriggerAnalyzeResponse {
+  suggestion: VmSuggestion | null;
+  cooldown_remaining_sec: number;
+  next_available_at: string | null;
+  message: string;
 }

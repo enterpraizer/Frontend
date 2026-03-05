@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 import {
   Dialog,
@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -29,8 +30,9 @@ import {
 } from '@/components/ui/tooltip';
 
 import { vmCreateSchema, type VMCreateFormValues } from '@/lib/schemas/vm.schema';
-import { useCreateVM } from '@/hooks/useVMs';
+import { useCreateVM, useSuggestVM } from '@/hooks/useVMs';
 import type { ResourceUsage, Quota } from '@/types';
+import AISuggestionCard from './AISuggestionCard';
 
 // ─── RAM options ─────────────────────────────────────────────────────────────
 
@@ -77,6 +79,7 @@ interface CreateVMModalProps {
 const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProps) => {
   const navigate = useNavigate();
   const createVM = useCreateVM();
+  const suggestVM = useSuggestVM();
 
   const {
     register,
@@ -84,16 +87,45 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
     control,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<VMCreateFormValues>({
     resolver: zodResolver(vmCreateSchema),
     defaultValues: { name: '', vcpu: 1, ram_mb: 1024, disk_gb: 20 },
   });
 
-  // Reset form when dialog closes
+  const [description, setDescription] = useState('');
+
+  // Reset form + suggestion when dialog closes
   useEffect(() => {
-    if (!open) reset();
+    if (!open) {
+      reset();
+      setDescription('');
+      suggestVM.reset();
+    }
+  // suggestVM.reset is stable; eslint-disable-next-line exhaustive-deps is intentional
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, reset]);
+
+  const suggestion = suggestVM.suggestion;
+
+  const handleSuggest = () => {
+    if (!description.trim()) return;
+    suggestVM.reset();
+    suggestVM.mutate({ description });
+  };
+
+  const handleApplySuggestion = () => {
+    if (!suggestion) return;
+    setValue('vcpu', suggestion.vcpu);
+    setValue('ram_mb', suggestion.ram_mb);
+    setValue('disk_gb', suggestion.disk_gb);
+    suggestVM.reset();
+  };
+
+  const handleDismissSuggestion = () => {
+    suggestVM.reset();
+  };
 
   const vcpuVal = watch('vcpu') || 0;
   const ramVal = watch('ram_mb') || 0;
@@ -132,7 +164,7 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Virtual Machine</DialogTitle>
         </DialogHeader>
@@ -163,15 +195,22 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
               id="vm-vcpu"
               type="number"
               min={1}
-              max={32}
+              max={Math.min(32, availVcpu)}
               {...register('vcpu', { valueAsNumber: true })}
+              onBlur={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                const maxVal = Math.min(32, availVcpu);
+                if (val > maxVal) setValue('vcpu', maxVal, { shouldValidate: true });
+                else if (val < 1) setValue('vcpu', 1, { shouldValidate: true });
+              }}
               className={vcpuExceeded ? 'border-destructive' : ''}
             />
+            <p className="text-xs text-muted-foreground">Максимум: {Math.min(32, availVcpu)} ядер доступно</p>
             {errors.vcpu && (
               <p className="text-xs text-destructive">{errors.vcpu.message}</p>
             )}
             {vcpuExceeded && (
-              <p className="text-xs text-destructive">Exceeds available vCPU quota</p>
+              <p className="text-xs text-destructive">Превышает доступную квоту vCPU ({availVcpu} ядер)</p>
             )}
           </div>
 
@@ -195,7 +234,7 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
                     <SelectValue placeholder="Select RAM" />
                   </SelectTrigger>
                   <SelectContent>
-                    {RAM_OPTIONS.map((opt) => (
+                    {RAM_OPTIONS.filter((opt) => opt.value <= availRamMb).map((opt) => (
                       <SelectItem key={opt.value} value={String(opt.value)}>
                         {opt.label}
                       </SelectItem>
@@ -204,11 +243,12 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
                 </Select>
               )}
             />
+            <p className="text-xs text-muted-foreground">Максимум: {Math.round(availRamMb / 1024)} GB доступно</p>
             {errors.ram_mb && (
               <p className="text-xs text-destructive">{errors.ram_mb.message}</p>
             )}
             {ramExceeded && (
-              <p className="text-xs text-destructive">Exceeds available RAM quota</p>
+              <p className="text-xs text-destructive">Превышает доступную квоту RAM ({Math.round(availRamMb / 1024)} GB)</p>
             )}
           </div>
 
@@ -224,15 +264,84 @@ const CreateVMModal = ({ open, onClose, currentUsage, quota }: CreateVMModalProp
               id="vm-disk"
               type="number"
               min={10}
-              max={500}
+              max={Math.min(500, availDiskGb)}
               {...register('disk_gb', { valueAsNumber: true })}
+              onBlur={(e) => {
+                const val = parseInt(e.target.value) || 10;
+                const maxVal = Math.min(500, availDiskGb);
+                if (val > maxVal) setValue('disk_gb', maxVal, { shouldValidate: true });
+                else if (val < 10) setValue('disk_gb', 10, { shouldValidate: true });
+              }}
               className={diskExceeded ? 'border-destructive' : ''}
             />
+            <p className="text-xs text-muted-foreground">Максимум: {Math.min(500, availDiskGb)} GB доступно</p>
             {errors.disk_gb && (
               <p className="text-xs text-destructive">{errors.disk_gb.message}</p>
             )}
             {diskExceeded && (
-              <p className="text-xs text-destructive">Exceeds available disk quota</p>
+              <p className="text-xs text-destructive">Превышает доступную квоту диска ({availDiskGb} GB)</p>
+            )}
+          </div>
+
+
+          {/* AI Suggestion Section */}
+          <div className="rounded-md border border-dashed border-violet-300 dark:border-violet-700 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm font-medium text-violet-700 dark:text-violet-300">
+                <Sparkles className="h-4 w-4" />
+                Описание проекта
+              </div>
+              <Badge
+                variant="outline"
+                className="text-xs border-violet-300 text-violet-500 dark:border-violet-700 dark:text-violet-400"
+              >
+                AI-powered
+              </Badge>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="vm-description" className="text-muted-foreground text-xs">
+                Опишите ваш проект (необязательно)
+              </Label>
+              <textarea
+                id="vm-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={1000}
+                rows={3}
+                placeholder="Например: Django веб-приложение с PostgreSQL, ~100 пользователей в день"
+                className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+              <p className="text-right text-xs text-muted-foreground">{description.length}/1000</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-violet-300 text-violet-700 hover:bg-violet-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950/30"
+              disabled={!description.trim() || suggestVM.isPending}
+              onClick={handleSuggest}
+            >
+              {suggestVM.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Анализируем…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  ✨ Получить рекомендацию ИИ
+                </>
+              )}
+            </Button>
+            {suggestion && (
+              <AISuggestionCard
+                vcpu={suggestion.vcpu}
+                ram_mb={suggestion.ram_mb}
+                disk_gb={suggestion.disk_gb}
+                reasoning={suggestion.reasoning}
+                confidence={suggestion.confidence}
+                onAccept={handleApplySuggestion}
+                onDismiss={handleDismissSuggestion}
+              />
             )}
           </div>
 

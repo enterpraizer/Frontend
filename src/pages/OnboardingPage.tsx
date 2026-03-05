@@ -28,9 +28,10 @@ export default function OnboardingPage() {
     try {
       const tokens = await authApi.createTenant(data.name);
       setTokens(tokens);
-      // Refresh user profile — tenant_id is now set
+      // Fetch fresh user profile and merge tenant_id from the new tokens
       const user = await authApi.me();
-      setUser(user);
+      // Belt-and-suspenders: ensure tenant_id is set even if /me lags behind JWT reissue
+      setUser({ ...user, tenant_id: user.tenant_id ?? tokens.tenant_id });
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
@@ -46,9 +47,9 @@ export default function OnboardingPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
             <Cloud className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to CloudIaaS!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Добро пожаловать в CloudIaaS!</h1>
           <p className="text-muted-foreground max-w-xs">
-            Let's set up your workspace. You can always change this name later.
+            Давайте настроим ваше рабочее пространство. Вы всегда сможете изменить название позже.
           </p>
         </div>
 
@@ -57,13 +58,13 @@ export default function OnboardingPage() {
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="name" className="text-base">
-                  Workspace name
+                  Название рабочего пространства
                 </Label>
                 <Input
                   id="name"
                   type="text"
                   autoFocus
-                  placeholder="e.g. Acme Corp, My Project…"
+                  placeholder="например: Acme Corp, Мой Проект…"
                   className="h-11 text-base"
                   aria-invalid={!!errors.name}
                   {...register('name')}
@@ -72,7 +73,7 @@ export default function OnboardingPage() {
                   <p className="text-xs text-destructive">{errors.name.message}</p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    This will be the name of your tenant workspace.
+                    Это будет название вашего рабочего пространства (tenant).
                   </p>
                 )}
               </div>
@@ -88,7 +89,7 @@ export default function OnboardingPage() {
 
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create workspace
+                Создать рабочее пространство
               </Button>
             </form>
           </CardContent>

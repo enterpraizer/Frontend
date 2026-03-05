@@ -1,6 +1,6 @@
+import { formatRelativeMsk } from '@/lib/utils';
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { formatDistanceToNow } from 'date-fns';
 import {
   Play,
   Pause,
@@ -49,11 +49,11 @@ import type { VM, VMStatus } from '@/types';
 const PAGE_SIZE = 10;
 
 const STATUS_OPTIONS: { label: string; value: string }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Running', value: 'running' },
-  { label: 'Stopped', value: 'stopped' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Terminated', value: 'terminated' },
+  { label: 'Все', value: 'all' },
+  { label: 'Запущена', value: 'running' },
+  { label: 'Остановлена', value: 'stopped' },
+  { label: 'Ожидание', value: 'pending' },
+  { label: 'Удалена', value: 'terminated' },
 ];
 
 // ─── Row skeleton ────────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ const VMListPage = () => {
       <div className="space-y-5">
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Virtual Machines</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Виртуальные машины</h1>
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
@@ -136,12 +136,12 @@ const VMListPage = () => {
                   disabled={vmsQuotaExceeded}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Create VM
+                  Создать VM
                 </Button>
               </span>
             </TooltipTrigger>
             {vmsQuotaExceeded && (
-              <TooltipContent>VM quota exceeded. Contact support to upgrade.</TooltipContent>
+              <TooltipContent>Квота VM исчерпана. Обратитесь в поддержку.</TooltipContent>
             )}
           </Tooltip>
         </div>
@@ -152,7 +152,7 @@ const VMListPage = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Search by name…"
+              placeholder="Поиск по имени…"
               value={searchRaw}
               onChange={(e) => handleSearch(e.target.value)}
             />
@@ -176,12 +176,12 @@ const VMListPage = () => {
         {!isLoading && vms.length === 0 ? (
           <EmptyState
             icon={<Server className="h-12 w-12" />}
-            title="No virtual machines yet"
-            description="Create your first VM to get started."
+            title="Нет виртуальных машин"
+            description="Создайте первую VM, чтобы начать."
             action={
               <Button onClick={openCreate} disabled={vmsQuotaExceeded}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create VM
+                Создать VM
               </Button>
             }
           />
@@ -190,14 +190,14 @@ const VMListPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Название</TableHead>
+                  <TableHead>Статус</TableHead>
                   <TableHead>vCPU</TableHead>
                   <TableHead>RAM</TableHead>
-                  <TableHead>Disk</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Диск</TableHead>
+                  <TableHead>IP адрес</TableHead>
+                  <TableHead>Создана</TableHead>
+                  <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -223,7 +223,7 @@ const VMListPage = () => {
                           {vm.ip_address ?? '—'}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">
-                          {formatDistanceToNow(new Date(vm.created_at), { addSuffix: true })}
+                          {formatRelativeMsk(vm.created_at)}
                         </TableCell>
                         <TableCell>
                           <div className="flex justify-end gap-1">
@@ -241,7 +241,7 @@ const VMListPage = () => {
                                   </Button>
                                 </span>
                               </TooltipTrigger>
-                              <TooltipContent>Start</TooltipContent>
+                              <TooltipContent>Запустить</TooltipContent>
                             </Tooltip>
                             {/* Stop */}
                             <Tooltip>
@@ -257,7 +257,7 @@ const VMListPage = () => {
                                   </Button>
                                 </span>
                               </TooltipTrigger>
-                              <TooltipContent>Stop</TooltipContent>
+                              <TooltipContent>Остановить</TooltipContent>
                             </Tooltip>
                             {/* Terminate */}
                             <Tooltip>
@@ -274,7 +274,7 @@ const VMListPage = () => {
                                   </Button>
                                 </span>
                               </TooltipTrigger>
-                              <TooltipContent>Terminate</TooltipContent>
+                              <TooltipContent>Удалить</TooltipContent>
                             </Tooltip>
                           </div>
                         </TableCell>
@@ -289,8 +289,8 @@ const VMListPage = () => {
         {totalPages > 1 && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, vmData?.total ?? 0)}{' '}
-              of {vmData?.total ?? 0}
+              Показано {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, vmData?.total ?? 0)}{' '}
+              из {vmData?.total ?? 0}
             </span>
             <div className="flex gap-2">
               <Button
@@ -299,7 +299,7 @@ const VMListPage = () => {
                 disabled={page === 0}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Previous
+                Назад
               </Button>
               <Button
                 variant="outline"
@@ -307,7 +307,7 @@ const VMListPage = () => {
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next
+                Далее
               </Button>
             </div>
           </div>
@@ -326,18 +326,18 @@ const VMListPage = () => {
         {/* ── Confirm dialogs ──────────────────────────────────────────────── */}
         <ConfirmDialog
           open={confirm?.type === 'stop'}
-          title={`Stop "${confirm?.vm.name}"?`}
-          description="The VM will be gracefully shut down. You can restart it later."
-          confirmLabel="Stop VM"
+          title={`Остановить "${confirm?.vm.name}"?`}
+          description="VM будет корректно завершена. Вы сможете запустить её снова."
+          confirmLabel="Остановить"
           isLoading={stopVM.isPending}
           onConfirm={() => { if (confirm) { stopVM.mutate(confirm.vm.id); setConfirm(null); } }}
           onCancel={() => setConfirm(null)}
         />
         <ConfirmDialog
           open={confirm?.type === 'terminate'}
-          title={`Terminate "${confirm?.vm.name}"?`}
-          description="This action is irreversible. All data on the VM will be destroyed."
-          confirmLabel="Terminate"
+          title={`Удалить "${confirm?.vm.name}"?`}
+          description="Это действие необратимо. Все данные VM будут уничтожены."
+          confirmLabel="Удалить"
           isLoading={terminateVM.isPending}
           variant="danger"
           onConfirm={() => { if (confirm) { terminateVM.mutate(confirm.vm.id); setConfirm(null); } }}

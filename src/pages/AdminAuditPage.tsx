@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { format } from 'date-fns';
 import { Download, ChevronDown, ChevronRight, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ function actionBadgeClass(action: string): string {
 }
 
 const ACTION_OPTIONS = [
-  { label: 'All Actions', value: 'all' },
+  { label: 'Все действия', value: 'all' },
   { label: 'vm.create', value: 'vm.create' },
   { label: 'vm.start', value: 'vm.start' },
   { label: 'vm.stop', value: 'vm.stop' },
@@ -58,9 +57,9 @@ const ACTION_OPTIONS = [
 // ─── CSV export helper ────────────────────────────────────────────────────────
 
 function exportCSV(entries: ActivityEntry[]) {
-  const header = ['Timestamp', 'Tenant', 'User', 'Action', 'Resource', 'Resource ID'];
+  const header = ['Временная метка', 'Арендатор', 'Пользователь', 'Действие', 'Ресурс', 'ID ресурса'];
   const rows = entries.map((e) => [
-    format(new Date(e.created_at), 'yyyy-MM-dd HH:mm:ss'),
+    new Date(e.created_at).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow', hour12: false }).replace(',', ''),
     e.tenant_id ?? '',
     e.user_email ?? e.user_id,
     e.action,
@@ -74,7 +73,7 @@ function exportCSV(entries: ActivityEntry[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `audit-log-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+  a.download = `audit-log-${new Date().toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow' }).split('.').reverse().join('-')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -93,7 +92,7 @@ const DetailsCell = ({ details }: { details?: Record<string, unknown> }) => {
         onClick={() => setOpen((v) => !v)}
       >
         {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-        {open ? 'Hide' : 'Show'}
+        {open ? 'Скрыть' : 'Показать'}
       </button>
       {open && (
         <pre className="mt-1 rounded bg-muted px-2 py-1.5 text-xs font-mono overflow-x-auto max-w-xs">
@@ -155,14 +154,14 @@ const AdminAuditPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Audit Log</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Журнал аудита</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Platform-wide activity across all tenants
           </p>
         </div>
         <Button variant="outline" onClick={handleExport} disabled={!data?.items?.length}>
           <Download className="mr-2 h-4 w-4" />
-          Export CSV
+          Экспорт CSV
         </Button>
       </div>
 
@@ -181,10 +180,10 @@ const AdminAuditPage = () => {
         {/* Tenant */}
         <Select value={tenantFilter} onValueChange={(v) => { setTenant(v); setPage(0); }}>
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="All Tenants" />
+            <SelectValue placeholder="Все арендаторы" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Tenants</SelectItem>
+            <SelectItem value="all">Все арендаторы</SelectItem>
             {tenantsData?.items?.map((t) => (
               <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
             ))}
@@ -193,7 +192,7 @@ const AdminAuditPage = () => {
         {/* Action */}
         <Select value={actionFilter} onValueChange={(v) => { setAction(v); setPage(0); }}>
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="All Actions" />
+            <SelectValue placeholder="Все действия" />
           </SelectTrigger>
           <SelectContent>
             {ACTION_OPTIONS.map((o) => (
@@ -207,14 +206,14 @@ const AdminAuditPage = () => {
           className="w-40"
           value={from}
           onChange={(e) => { setFrom(e.target.value); setPage(0); }}
-          title="From date"
+          title="С даты"
         />
         <Input
           type="date"
           className="w-40"
           value={to}
           onChange={(e) => { setTo(e.target.value); setPage(0); }}
-          title="To date"
+          title="По дату"
         />
         {(from || to || tenantFilter !== 'all' || actionFilter !== 'all') && (
           <Button
@@ -230,21 +229,21 @@ const AdminAuditPage = () => {
       {/* Table */}
       {!isLoading && entries.length === 0 ? (
         <EmptyState
-          title="No audit entries"
-          description="No activity matches your filters."
+          title="Нет записей аудита"
+          description="Нет активности, соответствующей вашим фильтрам."
         />
       ) : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-44">Timestamp</TableHead>
-                <TableHead>Tenant</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Resource</TableHead>
-                <TableHead>Resource ID</TableHead>
-                <TableHead>Details</TableHead>
+                <TableHead className="w-44">Временная метка</TableHead>
+                <TableHead>Арендатор</TableHead>
+                <TableHead>Пользователь</TableHead>
+                <TableHead>Действие</TableHead>
+                <TableHead>Ресурс</TableHead>
+                <TableHead>ID ресурса</TableHead>
+                <TableHead>Детали</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -259,7 +258,7 @@ const AdminAuditPage = () => {
                 : entries.map((entry) => (
                     <TableRow key={entry.id}>
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                        {format(new Date(entry.created_at), 'MMM dd, yyyy HH:mm:ss')}
+                        {new Date(entry.created_at).toLocaleString('ru-RU', { timeZone: 'Europe/Moscow', dateStyle: 'short', timeStyle: 'medium' })}
                       </TableCell>
                       <TableCell className="text-xs">
                         {entry.tenant_id
@@ -296,13 +295,13 @@ const AdminAuditPage = () => {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>{page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} of {total}</span>
+          <span>{page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)} из {total}</span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-              Previous
+              Назад
             </Button>
             <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
-              Next
+              Далее
             </Button>
           </div>
         </div>

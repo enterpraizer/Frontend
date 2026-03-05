@@ -38,19 +38,19 @@ export default function ConfirmEmailPage() {
             {status === 'loading' && (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Confirming your email…</p>
+                <p className="text-sm text-muted-foreground">Подтверждаем email…</p>
               </div>
             )}
 
             {status === 'success' && (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
                 <CheckCircle2 className="h-12 w-12 text-green-500" />
-                <p className="text-lg font-semibold">Email confirmed!</p>
+                <p className="text-lg font-semibold">Email подтверждён!</p>
                 <p className="text-sm text-muted-foreground">
-                  Your account is active. You can now sign in.
+                  Ваш аккаунт активен. Теперь вы можете войти.
                 </p>
                 <Button asChild className="mt-2 w-full">
-                  <Link to="/login">Go to sign in</Link>
+                  <Link to="/login">Перейти ко входу</Link>
                 </Button>
               </div>
             )}
@@ -58,13 +58,12 @@ export default function ConfirmEmailPage() {
             {status === 'error' && (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
                 <XCircle className="h-12 w-12 text-destructive" />
-                <p className="text-lg font-semibold">Invalid or expired link</p>
+                <p className="text-lg font-semibold">Недействительная или устаревшая ссылка</p>
                 <p className="text-sm text-muted-foreground">
-                  This confirmation link is no longer valid. Please register again or contact
-                  support.
+                  Эта ссылка подтверждения больше недействительна. Пожалуйста, зарегистрируйтесь снова или обратитесь в поддержку.
                 </p>
                 <Button asChild variant="outline" className="mt-2 w-full">
-                  <Link to="/register">Back to register</Link>
+                  <Link to="/register">Назад к регистрации</Link>
                 </Button>
               </div>
             )}

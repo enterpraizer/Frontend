@@ -1,6 +1,6 @@
+import { formatRelativeMsk } from '@/lib/utils';
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Building2, Settings2, Power, PowerOff } from 'lucide-react';
 import { Cpu, HardDrive, Server, MemoryStick } from 'lucide-react';
 
@@ -73,7 +73,7 @@ const AdminTenantDetailPage = () => {
       <div className="flex flex-col items-center gap-4 py-20 text-center">
         <p className="text-muted-foreground">Tenant not found.</p>
         <Button variant="outline" onClick={() => navigate('/admin/tenants')}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Tenants
+          <ArrowLeft className="mr-2 h-4 w-4" /> Назад к арендаторам
         </Button>
       </div>
     );
@@ -104,13 +104,13 @@ const AdminTenantDetailPage = () => {
                 : 'bg-red-100 text-red-700 border-red-200'
             }
           >
-            {tenant.is_active ? 'Active' : 'Inactive'}
+            {tenant.is_active ? 'Активен' : 'Неактивен'}
           </Badge>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setQuotaOpen(true)}>
             <Settings2 className="mr-1.5 h-4 w-4" />
-            Edit Quota
+            Изменить квоту
           </Button>
           <Button
             variant={tenant.is_active ? 'destructive' : 'default'}
@@ -118,8 +118,8 @@ const AdminTenantDetailPage = () => {
             onClick={() => setToggleConfirm(true)}
           >
             {tenant.is_active
-              ? <><PowerOff className="mr-1.5 h-4 w-4" />Deactivate</>
-              : <><Power className="mr-1.5 h-4 w-4" />Activate</>
+              ? <><PowerOff className="mr-1.5 h-4 w-4" />Деактивировать</>
+              : <><Power className="mr-1.5 h-4 w-4" />Активировать</>
             }
           </Button>
         </div>
@@ -127,15 +127,15 @@ const AdminTenantDetailPage = () => {
 
       {/* Tenant info card */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Tenant Details</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Сведения об арендаторе</CardTitle></CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-5">
             <DetailRow label="Tenant ID" value={<code className="text-xs">{tenant.id}</code>} />
             <DetailRow label="Owner ID" value={<code className="text-xs">{tenant.owner_id}</code>} />
             <DetailRow label="Slug" value={<code className="text-xs">{tenant.slug}</code>} />
             <DetailRow
-              label="Created"
-              value={formatDistanceToNow(new Date(tenant.created_at), { addSuffix: true })}
+              label="Создан"
+              value={formatRelativeMsk(tenant.created_at)}
             />
           </div>
         </CardContent>
@@ -143,7 +143,7 @@ const AdminTenantDetailPage = () => {
 
       {/* Quota + Usage card */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Resource Quota & Usage</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-base">Квота ресурсов и использование</CardTitle></CardHeader>
         <CardContent>
           {quotaLoading || !quota ? (
             <div className="space-y-4">
@@ -166,7 +166,7 @@ const AdminTenantDetailPage = () => {
                 icon={<MemoryStick className="h-4 w-4" />}
               />
               <ResourceGauge
-                label="Disk"
+                label="Диск"
                 used={usage?.disk_gb.used ?? 0}
                 max={quota.max_disk_gb}
                 unit=" GB"
@@ -188,10 +188,10 @@ const AdminTenantDetailPage = () => {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Tenant VMs
+            VM арендатора
           </h2>
           <Button variant="link" size="sm" onClick={() => navigate('/admin/vms')}>
-            View all VMs →
+            Все VM →
           </Button>
         </div>
         <Card>
@@ -205,18 +205,18 @@ const AdminTenantDetailPage = () => {
             </CardContent>
           ) : tenantVMs.length === 0 ? (
             <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              No VMs for this tenant.
+              У этого арендатора нет VM.
             </CardContent>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Статус</TableHead>
                   <TableHead>vCPU</TableHead>
                   <TableHead>RAM</TableHead>
                   <TableHead>IP Address</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>Создана</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -228,7 +228,7 @@ const AdminTenantDetailPage = () => {
                     <TableCell>{Math.round(vm.ram_mb / 1024)} GB</TableCell>
                     <TableCell className="text-muted-foreground">{vm.ip_address ?? '—'}</TableCell>
                     <TableCell className="text-muted-foreground text-xs">
-                      {formatDistanceToNow(new Date(vm.created_at), { addSuffix: true })}
+                      {formatRelativeMsk(vm.created_at)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -252,13 +252,13 @@ const AdminTenantDetailPage = () => {
       {/* Toggle confirm */}
       <ConfirmDialog
         open={toggleConfirm}
-        title={`${tenant.is_active ? 'Deactivate' : 'Activate'} "${tenant.name}"?`}
+        title={`${tenant.is_active ? 'Деактивировать' : 'Активировать'} "${tenant.name}"?`}
         description={
           tenant.is_active
-            ? 'This will block the tenant and all their users from the platform.'
-            : 'This will restore access for the tenant and their users.'
+            ? 'Арендатор и его пользователи потеряют доступ к платформе.'
+            : 'Доступ к платформе для арендатора и его пользователей будет восстановлен.'
         }
-        confirmLabel={tenant.is_active ? 'Deactivate' : 'Activate'}
+        confirmLabel={tenant.is_active ? 'Деактивировать' : 'Активировать'}
         variant={tenant.is_active ? 'danger' : 'default'}
         isLoading={toggleActive.isPending}
         onConfirm={() => {
